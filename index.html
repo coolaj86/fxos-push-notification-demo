@@ -1,23 +1,43 @@
-<!DOCTYPE html>
+
 <html>
   <head>
-    <title>Hello World!</title>
+    <title>Push Demo - Firefox OS</title>
+    <meta name="viewport" content="user-scalable=0, initial-scale=1.0"/>
     <script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/pouchdb-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/app.js" type="text/javascript" charset="utf-8"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
   </head>
   <body>
-    <h1>AJ's SMS Test</h1>
-    <form id="sms-form">
-      <input type="tel" name="phone" value="555-555-1234">
-      <br>
-      <textarea name="msg">Testing 1, 2, 3. Be sure to send me a message back!</textarea>
-      <br>
-      <button type="submit">Send SMS</button></div>
-    </form>
-    <ul id="alarms">
-    </ul>
-    <div id="response">
-      response will go here
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>AJ&apos;s Push Test</h1>
+          <form id="push-form" class="form-horizontal">
+            <button type="submit" class="btn btn-primary form-control">Register for Push Notifications</button>
+          </form>
+          <div id="response">response will go here</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h3>Debug Console</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-9">
+          <div class="help-block pull-left">Because sometimes the built-in debbuger doesn't work...</div>
+        </div>
+        <div class="col-xs-3">
+          <button id="console-clear" type="button" class="btn btn-default">Clear</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <pre><code>
+              <div id="console"></div></code></pre>
+        </div>
+      </div>
     </div>
   </body>
 </html>

@@ -1,22 +1,25 @@
-{
-  "name": "SMS Demo",
-  "description": "Test Sending and Receiving SMS",
-  "version": "1.0",
-  "type": "certified",
-  "launch_path": "/index.html",
-  "developer": {
-    "name": "AJ ONeal",
-    "url": "http://coolaj86.com"
-  },
-  "permissions": {
-    "sms": {
-      "description": "You can send and receive text messages in this app."
-    },
-    "alarms": {
-      "description": "We'll periodically manually check for new messages since message API is buggy."
+{ "name": "Push Demo"
+, "description": "Test Registering and Receiving Push Notifications"
+, "version": "1.0"
+, "type": "privileged"
+, "launch_path": "/index.html"
+, "developer": {
+    "name": "AJ ONeal"
+  , "url": "http://coolaj86.com"
+  }
+, "permissions": {
+    "systemXHR": {
+      "description": "Needs to be able to send the push url to the server."
+    }
+  , "push": {
+      "description": "Get notifications, duh"
+    }
+  , "storage": {
+      "description": "To store whether or not the app is already registered for SimplePush"
     }
   },
   "messages": [
-    { "alarm": "/index.html" }
+    { "push": "/index.html"}
+  , { "push-register": "/index.html"}
   ]
 }

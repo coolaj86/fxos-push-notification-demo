@@ -1,142 +1,138 @@
-/*global MozSmsFilter*/
 $(function() {
   'use strict';
 
-  /*
-  function logObject(obj) {
-    $("#response").append("<br> New Object: " + obj);
-    Object.keys(obj).forEach(function (key) {
-      $("#response").append("<br> " + key + ": " + obj[key]);
-    });
-  }
-  */
-  function logMsg(msg) {
-    [
-      'type', 'id', 'threadId', 'body', 'delivery', 'deliveryStatus', 'read'
-    , 'receiver', 'sender', 'timestamp', 'messageClass'
-    ].forEach(function (key) {
-      $("#response").append("<br> " + key + ": " + msg[key]);
-    });
+  function log(msg, type) {
+    if (/^info/.test(type) || !type) {
+      type = 'info';
+    }
+    else if (/^warn/.test(type)) {
+      type = 'warning';
+    }
+    else if (/^err/.test(type) || /^dang/.test(type)) {
+      type = 'danger';
+    }
+
+    $('#console').append('<div class="alert alert-' + type + '">' + msg + '</div>');
   }
 
-  $('form#sms-form').on("submit", function (ev) {
-    $("#response").html("submit form");
+  // TODO Promise
+  var db = new window.PouchDB('settings')
+    , pushRegistration
+    ;
+
+  // https://developer.mozilla.org/en-US/docs/WebAPI
+  // https://developer.mozilla.org/en-US/docs/Web/API/Simple_Push_API
+  // https://developer.mozilla.org/en-US/Apps/Build/App_permissions
+  // https://developer.mozilla.org/en-US/Apps/Build/API_support_table
+
+  db.get('reg_url', function (err, doc) {
+    pushRegistration = doc || { _id: 'reg_url', url: '' };
+  });
+
+  $('#push-form').on('submit', function (ev) {
+    //ev.defaultPrevented = true;
     ev.preventDefault();
     ev.stopPropagation();
 
-    var msg = $('[name=msg]').val()
-      , phone = $('[name=phone]').val()
-      , request
-      //, requests
-      ;
-
-    $("#response").html("got values");
-
-    request = navigator.mozMobileMessage.send(phone, msg);
-    $("#response").html("tried to send message");
-
-    //requests.forEach(function (request) {
-    $("#response").html("iterate through requests");
-    request.onsuccess = function () {
-      window.thing = this;
-      console.error(this.result);
-      $("#response").html("Sent to <br>" + this.result);
-      logMsg(this.result);
-    };
-    request.onerror = function () {
-      window.thing = this;
-      console.error(this.error.name);
-      console.error(this.error.message);
-      $("#response").html(this.error.name + ':' + this.error.message);
-    };
-    //});
-  });
-
-  function showMessages(id) {
-    var filter = new MozSmsFilter() // https://developer.mozilla.org/en-US/docs/Web/API/MozSmsFilter
-      , cursor
-      ;
-
-    filter.read = false;
-    if ('undefined' !== typeof id) {
-      filter.threadId = id;
-    }
-
-    // Get the messages from the latest to the first
-    cursor = navigator.mozMobileMessage.getMessages(filter, true);
-
-    cursor.onsuccess = function () {
-      logMsg(this.result);
+    pushRegistration.url = $('#reg-url').val();
+    db.put(pushRegistration);
+    db.get('push_endpoint', function (err, doc) {
       /*
-      var message = this.result
-        , time = message.timestamp.toDateString()
-        ;
-
-      console.log(time + ': ' + (message.body || message.subject)); // SMS || MMS
-      $("#response").append("<div>Got new message [" + time + "]"
-        + "<br>" + (message.body || message.subject)
-        + "</div>"
-      );
-
-      if (!this.done) {
-        this.continue();
+      if (err && 404 !== err.status) {
+        console.error(err);
+        window.alert('Error with PouchDB / IndexedDB: ' + err.message);
       }
       */
-    };
-  }
 
-  // 'received' seems to only activate after a message is sent
-  navigator.mozMobileMessage.addEventListener('received', function (msg) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/MozSmsMessage
-    $("#response").html("Got a message");
-    $("#response").append("<br>" + msg);
-    logMsg(msg);
-
-    showMessages(msg.id);
-  });
-
-  navigator.mozSetMessageHandler("alarm", function (mozAlarm) { 
-    // var directive = alorms[mozAlarm.data.id]; doStuff(directive);
-    $("#alarms").append("<li>Alarm Fired: " + new Date().toString().replace(/GMT.*/, ''));
-      //+ " : " + JSON.stringify(mozAlarm.data) + "</li>");
-    showMessages();
-    //setAlarm(7 * 1000);
-    setAlarm(7 * 60 * 1000);
-  });
-  
-  function setAlarm(offset) {
-    var alarmId
-      , date
-      , request
-      ;
-
-    $("#response").append("<br><br> setting alarm for " + (offset / 1000) + "s in the future");
-    date = new Date(Date.now() + offset);
-    $("#response").append("<br> will fire at " + " for " + date.toString().replace(/GMT.*/, ''));
-
-    // Set an alarm and store it's id
-    //request = navigator.mozAlarms.add(date, "ignoreTimezone", { foo: "bar" });
-    request = navigator.mozAlarms.add(date, "honorTimezone", { foo: "bar" });
-
-    request.onsuccess = function () {
-      // alarms[this.result] = { type: 'thingy', params: ['do', 'stuff'] };
-      alarmId = this.result;
-      if (this.result) {
-        $("#response").append("<br> set alarm " + this.result + " for " + date.toString().replace(/GMT.*/, ''));
+      if (!doc) {
+        register();
       } else {
-        $("#response").append("<br><br> error setting alarm: " + this.error);
+        log('Already Registered');
+        log(JSON.stringify(doc));
       }
-    };
+    });
+  });
 
-    // ...
+  $('body').on('click', '#console-clear', function () {
+    $('#console').html('');
+  });
 
-    // Later on, removing the alarm if it exists
-    if (alarmId) {
-      navigator.mozAlarms.remove(alarmId);
+  function register(pushRegistration) {
+    if (!window.navigator.push) {
+      console.error('missing navigator.push');
     }
+ 
+    console.log('registering');
+    var req = navigator.push.register()
+      ;
+    
+    log('Registering for push notification...');
+    req.addEventListener('success', function (ev) {
+      log(req.result, 'info');
+
+      var endpoint = req.result
+        //, request = new XMLHttpRequest({ mozSystem: true, mozAnon: true })
+        ;
+
+      console.log("New endpoint: " + endpoint);
+      $('#response').text("New endpoint: " + endpoint);
+      console.log(ev);
+      $.post('http://requestb.in/pgdk40pg', { endpoint: endpoint });
+
+      /*
+      request.open(pushRegistration.url, "POST", true);
+      request.setHeader('Content-Type', 'application/json');
+      request.send(JSON.stringify({ url: endpoint }, null, '  '));
+      */
+
+      db.put({
+        _id: 'push_endpoint'
+      , url: req.result
+      });
+    });
+
+    req.addEventListener('error', function(ev) {
+      console.error("Error getting a new endpoint: " + ev.target.error.name);
+      console.error("Error getting a new endpoint: " + req.error);
+      console.error("Error getting a new endpoint: " + req.error.name);
+
+      log(ev.target.error.name, 'error');
+      log(req.error, 'error');
+      log(req.error.name, 'error');
+    });
   }
 
-  if (!navigator.mozHasPendingMessage("alarm")) {
-    setAlarm(5 * 1000);
+  if (window.navigator.mozSetMessageHandler) {
+    window.navigator.mozSetMessageHandler('push', function(ev) {
+      log("'push' received " + ev.version + " " + ev.pushEndpoint);
+      console.log('My endpoint is ' + ev.pushEndpoint);
+      console.log('My new version is ' +  ev.version);
+      //Remember that you can handle here if you have more than
+      //one pushEndpoint
+      // doStuff()
+    });
+  } else {
+    // No message handler
+  }
+
+  if (window.navigator.mozSetMessageHandler) {
+    window.navigator.mozSetMessageHandler('push-register', function() {
+      log("'push-register' received.", 'warn');
+      log("The old endpoint is stale and will now be renewed");
+      
+      db.get('push_endpoint', function(err, doc) {
+        if (!doc) {
+          register();
+          return;
+        }
+
+        // db.remove(doc, function(err, response) { });
+        db.remove(doc._id, doc._rev, function (/*err, response*/) {
+          register();
+        });
+      });
+    });
+  } else {
+    // No message handler
   }
 });
