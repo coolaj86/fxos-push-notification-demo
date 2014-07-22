@@ -26,7 +26,7 @@
 
           div
             label.control-label Registration ID
-            input.form-control(type="text")
+            input.form-control(type="text" name="friendly-id")
             .help-block The ID will be something silly, like 'tricky-chicken-42'
 
           div.col-sm-3.col-md-2.pull-right
@@ -40,7 +40,7 @@
 
           div
             label.control-label Data
-            textarea.form-control(type="text" rows="5").
+            textarea.form-control(type="text" rows="5" name="data").
               { "foo": "bar"
               , "baz": 42
               , "ts": null
