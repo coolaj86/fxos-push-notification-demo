@@ -2,17 +2,21 @@ html
   head
     title Push Demo - Firefox OS
     meta(name='viewport', content='user-scalable=0, initial-scale=1.0')
+    meta(charset="utf-8")
+    meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
     script(src='js/jquery.min.js', type='text/javascript', charset='utf-8')
     script(src='js/pouchdb-2.2.3.min.js', type='text/javascript', charset='utf-8')
+    script(src='js/aj-logger.js', type='text/javascript', charset='utf-8')
     script(src='js/app.js', type='text/javascript', charset='utf-8')
     link(href='css/bootstrap.min.css', rel='stylesheet')
   body
     .container
       .row
         .col-xs-12
-          h1 AJ&apos;s Push Test
+          h1 AJ's Push Test
           form.form-horizontal#push-form
-            button.btn.btn-primary.form-control(type='submit') Register for Push Notifications
+            fieldset
+              button.btn.btn-primary.form-control(type='submit') Register for Push Notifications
           #response
             | response will go here
       .row
