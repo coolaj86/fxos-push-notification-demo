@@ -8,9 +8,7 @@
   , "url": "http://coolaj86.com"
   }
 , "permissions": {
-    "systemXHR": {
-      "description": "Needs to be able to send the push url to the server."
-    }
+    "systemXHR": {}
   , "push": {
       "description": "Get notifications, duh"
     }
