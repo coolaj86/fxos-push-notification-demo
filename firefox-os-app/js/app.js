@@ -18,6 +18,9 @@ $(function() {
   // TODO Promise
   var db = new window.PouchDB('settings')
     , pushRegistration
+    , homeBase = 'http://ffpush.dev.coolaj86.com'
+    , home = homeBase + '/api/push'
+    //, home = 'https://u34hasta3bs5.runscope.net'
     ;
 
   // https://developer.mozilla.org/en-US/docs/WebAPI
@@ -45,10 +48,13 @@ $(function() {
       */
 
       if (!doc) {
-        register();
+        registerMozilla();
+      } else if (!doc.friendlyId) {
+        registerHome(doc);
       } else {
         log('Already Registered');
-        log(JSON.stringify(doc));
+        log(doc.friendlyId);
+        log(doc.url);
       }
     });
   });
@@ -57,7 +63,34 @@ $(function() {
     $('#console').html('');
   });
 
-  function register(pushRegistration) {
+  function registerHome(endpoint) {
+    $.post(home, { endpoint: endpoint }).then(function (data) {
+      log('communicated with server');
+      log(JSON.stringify(data));
+
+      db.get('push_endpoint', function (err, data) {
+        if (!data || !data.url) {
+          log.error('db data disappeared', 'error');
+          data = { _id: 'push_endpoint' };
+        }
+
+        data.url = endpoint;
+        data.friendlyId = data.id;
+
+        db.put(data, function (err) {
+          if (err) {
+            log('error storing in pouch', 'error');
+            log(err && err.message || err, 'error');
+          }
+        });
+      }, function (err) {
+        log('error communicating with server', 'error');
+        log(err && err.message || err, 'error');
+      });
+    });
+  }
+
+  function registerMozilla() {
     if (!window.navigator.push) {
       console.error('missing navigator.push');
     }
@@ -77,7 +110,7 @@ $(function() {
       console.log("New endpoint: " + endpoint);
       $('#response').text("New endpoint: " + endpoint);
       console.log(ev);
-      $.post('http://requestb.in/pgdk40pg', { endpoint: endpoint });
+      registerHome(endpoint);
 
       /*
       request.open(pushRegistration.url, "POST", true);
@@ -122,13 +155,13 @@ $(function() {
       
       db.get('push_endpoint', function(err, doc) {
         if (!doc) {
-          register();
+          registerMozilla();
           return;
         }
 
         // db.remove(doc, function(err, response) { });
         db.remove(doc._id, doc._rev, function (/*err, response*/) {
-          register();
+          registerMozilla();
         });
       });
     });
