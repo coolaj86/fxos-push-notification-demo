@@ -41,14 +41,51 @@ $(function() {
 
       if (!doc) {
         registerMozilla();
-      } else if (!doc.friendlyId) {
+      } else /* if (!doc.friendlyId) */ {
         registerHome(doc.url, doc.oldUrl);
+      /*
       } else {
         showRegistration(doc);
+      */
       }
     });
   });
 
+  $('body').on('click', '[name="reset"]', function () {
+    db.get('push_endpoint', function (err, doc) {
+      var request
+        , count = 0
+        ;
+
+      if (!doc) {
+        return;
+      }
+
+      function unregister(url) {
+        request = navigator.push.unregister(url);
+        request.onsuccess = function (e) {
+          console.log(e);
+          log('[unregistered]');
+        };
+        request.onerror = function (e) {
+          if (count > 3) {
+            return;
+          }
+          count += 1;
+          setTimeout(function () {
+            unregister(url);
+          }, 10 * 60 * 1000);
+          console.log(e);
+          log('[fail] [unregister]:' + (e && e.message || JSON.stringify(e)));
+        };
+      }
+
+      unregister(doc.url);
+      db.remove(doc._id, doc._rev, function (/*err, response*/) {
+        log.warn('[delete]');
+      });
+    });
+  });
   $('body').on('click', '#console-clear', function () {
     log.clear();
   });
@@ -133,7 +170,11 @@ $(function() {
   // Receive the push notifications
   if (!window.navigator.mozSetMessageHandler) {
     window.navigator.mozSetMessageHandler('push', function(ev) {
-      log('[push notification] v' + ev.version);
+      console.log('[push notification]');
+      console.log(ev);
+      log.clear();
+      log('[push notification]');
+      log('v' + ev.version);
       log('from ' + ev.pushEndpoint);
       log("retrieving... ");
       
@@ -157,6 +198,7 @@ $(function() {
 
   if (window.navigator.mozSetMessageHandler) {
     window.navigator.mozSetMessageHandler('push-register', function() {
+      log.clear();
       log.warn("[push-register] renewing endpoint...");
       
       db.get('push_endpoint', function(err, doc) {
