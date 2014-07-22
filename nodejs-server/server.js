@@ -1,10 +1,14 @@
 'use strict';
 
+// To my great frustration it would appear that firefox os
+// doesn't handle non-200 responses very well
+
 var path = require('path')
   , connect = require('connect')
   , app = connect()
   , urlrouter = require('connect_router')
   , send = require('connect-send-json')
+  , morgan = require('morgan')
   , bodyParser = require('body-parser')
   , serveStatic = require('serve-static')
   , hri = require('human-readable-ids').hri
@@ -17,6 +21,7 @@ var path = require('path')
   ;
 
 
+app.use(morgan());
 app.use(send.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -47,8 +52,9 @@ function route(rest) {
     var body = req.body
       ;
 
+    console.log(req.body);
     if (!body.url) {
-      res.statusCode = 400;
+      //res.statusCode = 400;
       res.json({ error: { message: "Missing url" } });
       return;
     }
@@ -84,7 +90,6 @@ function route(rest) {
 
     poor.get(params.id).then(function (url) {
       if (!url) {
-        res.statusCode = 200;
         res.json({ exists: false });
         return;
       }
@@ -99,7 +104,7 @@ function route(rest) {
       ;
 
     if (!Object.keys(body).length) {
-      res.statusCode = 400;
+      //res.statusCode = 400;
       res.json({ error: { message: "Missing data" } });
       return;
     }
@@ -107,23 +112,27 @@ function route(rest) {
     function pushError(err) {
       console.error(req.url, 'send data');
       console.error(err);
-      res.statusCode = 500;
+      //res.statusCode = 500;
       res.json({ error: { message: err.message || err } });
     }
 
     function requestPush(url) {
+      console.log(url);
       return request(
-        { method: 'POST'
+        { method: 'PUT'
         , uri: url
         , form: { version: Date.now() }
         }
       ).spread(
-        function (resp/*, data*/) {
+        function (resp, data) {
           var p
             , old
             ;
 
           if (resp.statusCode !== 200) {
+            console.error(resp.statusCode);
+            console.error(resp.headers);
+            console.error(data);
             throw new Error('Bad statusCode: ' + resp.statusCode);
           }
 
@@ -164,13 +173,12 @@ function route(rest) {
           );
 
         }
-      , pushError
-      );
+      ).catch(pushError);
     }
 
     poor.get(params.id).then(function (url) {
       if (!url) {
-        res.statusCode = 400;
+        //res.statusCode = 400;
         res.json({ error: { message: "Bad id" } });
         return;
       }
@@ -193,14 +201,14 @@ function route(rest) {
 
     if (!pushes[id]) {
       console.error(req.url, 'push fishing');
-      res.statusCode = 400;
+      //res.statusCode = 400;
       res.json({ error: { message: "trying to retrieve data that wasn't pushed" } });
       return;
     }
 
     if (pushes[id].lock) {
       console.error(req.url, 'push lock');
-      res.statusCode = 400;
+      //res.statusCode = 400;
       res.json({ error: { message: "trying to retrieve data twice at once. wait a second or two." } });
       return;
     }
@@ -215,7 +223,7 @@ function route(rest) {
       pushes[id].reject(err);
       console.error(req.url, 'push retrieve fail');
       console.error(err);
-      res.statusCode = 500;
+      //res.statusCode = 500;
       res.json({ error: { message: "error retrieving data" } });
     }).then(function () {
       pushes[id].lock = false;
