@@ -1,5 +1,5 @@
 HOST="http://ffpush.dev.coolaj86.com:8080"
-URL="http://requestb.in/17g481p1?inspect"
+URL="http://requestb.in/17g481p1"
 ID="${1}"
 
 register() {
