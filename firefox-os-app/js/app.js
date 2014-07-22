@@ -20,11 +20,12 @@ $(function() {
   $.ajaxSetup( {
     xhr: function() { return new window.XMLHttpRequest({ mozSystem: true, mozAnon: true }); }
   });
+  $('.js-test-site-container').hide();
 
   // TODO Promise
   var log = window.AjLogger.create('#console')
     , db = new window.PouchDB('settings')
-    , homeBase = 'http://ffpush.dev.coolaj86.com:8080'
+    , homeBase = 'http://ffpush.dev.coolaj86.com'
     , home = homeBase + '/api/push'
     //, home = 'https://u34hasta3bs5.runscope.net'
     ;
@@ -160,6 +161,8 @@ $(function() {
   }
 
   function showRegistration(doc) {
+    $('a.js-test-site').attr('href', homeBase).text(homeBase);
+    $('.js-test-site-container').show();
     log.clear();
     log('Registered');
     log.info(doc.friendlyId);

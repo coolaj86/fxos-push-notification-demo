@@ -17,10 +17,14 @@ html
           form.form-horizontal#push-form
             fieldset
               button.btn.btn-primary.form-control(type='submit') Register for Push Notifications
-              .col-xs-8
-                button.btn.btn-danger.form-control(type='button' name="reset") Reset Registration
-          #response
-            | response will go here
+      .row
+        .col-xs-6
+          button.btn.btn-danger.form-control(type='button' name="reset") Reset Registration
+      .row
+        .col-xs-12.js-test-site-container
+          span Go to&#32;
+          a.js-test-site(href="http://ffpush.dev.coolaj86.com/" target="_home_base") http://ffpush.dev.coolaj86.com/
+          span &#32;to test your push notification.
       .row
         .col-xs-12
           h3 Debug Console
