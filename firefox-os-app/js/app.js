@@ -52,6 +52,41 @@ $(function() {
     });
   });
 
+  $('.js-try-push').on('click', function (ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    db.get('push_endpoint', function (err, doc) {
+      if (!doc || !doc.url) {
+        log.error("doc.url disappeared");
+      }
+
+      doc.count = doc.count || -1;
+      doc.count += 1;
+      //log.clear();
+      log('pushing v' + doc.count);
+
+
+      $.ajax({
+        url: doc.url
+      , type: 'PUT'
+      , data: { version: Date.now() } // urlencoded
+      }).then(function (data) {
+        console.log('data');
+        console.log(data);
+
+        db.put(doc, function (err) {
+          if (err) {
+            log.error('error saving count');
+            return;
+          }
+
+          log.info('pushed v' + doc.count);
+        });
+      });
+    });
+  });
+
   $('body').on('click', '[name="reset"]', function () {
     db.get('push_endpoint', function (err, doc) {
       var request
