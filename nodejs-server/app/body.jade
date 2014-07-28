@@ -39,6 +39,9 @@
           legend Enter the data you would like to retrieve on push
 
           div
+            label.control-label Version
+            input.form-control(name="version" type="number" min="0" max="1000" value="0")
+          div
             label.control-label Data
             textarea.form-control(type="text" rows="5" name="data").
               { "foo": "bar"

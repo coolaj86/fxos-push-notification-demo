@@ -2,7 +2,33 @@ $(function () {
   'use strict';
 
   var friendlyId
+    , unfriendlyUrl
     ;
+
+  function getVersion() {
+    return parseInt($('.js-form-ffpushdata input[name="version"]').val(), 10);
+  }
+
+  function bumpVersion() {
+    var version = getVersion()
+      ;
+
+    $('.js-form-ffpushdata input[name="version"]').val(version + 1);
+    setVersion();
+  }
+
+  function setVersion() {
+    var version = getVersion()
+      ;
+
+    $('.js-push-example code').text(
+      "curl '" + unfriendlyUrl + "' \\"
+      + "\n  -X PUT \\"
+      + "\n  -d 'version=" + version + "'"
+    );
+
+    return version;
+  }
 
   $('body').on('submit', '.js-form-ffpushinstruction', function (ev) {
     ev.preventDefault();
@@ -23,12 +49,9 @@ $(function () {
       if (data && data.exists) {
         $('.js-steps').hide();
         if (data.url) {
+          unfriendlyUrl = data.url;
           $('.js-push-example').show();
-          $('.js-push-example code').text(
-            "curl '" + data.url + "' \\"
-          + "\n  -X PUT \\"
-          + "\n  -d 'version=" + Date.now() + "'"
-          );
+          setVersion();
         }
         $('.js-step-2').show();
       } else {
@@ -46,11 +69,15 @@ $(function () {
     var data = $('.js-form-ffpushdata textarea').val()
       ;
 
+    setVersion();
+
     try {
       data = JSON.parse(data);
     } catch(e) {
-      data = { message: data };
+      // ignore
     }
+    
+    data = { data: data, version: getVersion() };
 
     $.ajax({
       url: '/api/push/' + friendlyId
@@ -58,6 +85,7 @@ $(function () {
     , contentType : 'application/json'
     , data: JSON.stringify(data)
     }).then(function (data) {
+      bumpVersion();
       // TODO websocket updates
       $('.js-console').show();
       $('.js-console-data').append(JSON.stringify(data, null, '  '));

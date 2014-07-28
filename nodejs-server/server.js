@@ -121,7 +121,7 @@ function route(rest) {
       return request(
         { method: 'PUT'
         , uri: url
-        , form: { version: Date.now() }
+        , form: { version: body.version || 3 }
         }
       ).spread(
         function (resp, data) {
@@ -183,7 +183,7 @@ function route(rest) {
         return;
       }
 
-      return pushdata(params.id, body).then(
+      return pushdata(params.id, body.data).then(
         function () {
           return requestPush(url);
         }
