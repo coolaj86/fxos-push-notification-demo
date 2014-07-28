@@ -90,11 +90,11 @@ function route(rest) {
 
     poor.get(params.id).then(function (url) {
       if (!url) {
-        res.json({ exists: false });
+        res.json({ exists: false, error: { message: "the endpoint is not registered" } });
         return;
       }
 
-      res.json({ exists: true });
+      res.json({ exists: true, url: url });
     });
   });
 

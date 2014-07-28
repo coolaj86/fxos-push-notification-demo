@@ -22,6 +22,14 @@ $(function () {
     $.get('/api/push/' + friendlyId).then(function (data) {
       if (data && data.exists) {
         $('.js-steps').hide();
+        if (data.url) {
+          $('.js-push-example').show();
+          $('.js-push-example code').text(
+            "curl '" + data.url + "' \\"
+          + "\n  -X PUT \\"
+          + "\n  -d 'version=" + Date.now() + "'"
+          );
+        }
         $('.js-step-2').show();
       } else {
         window.alert('Invalid Id');
