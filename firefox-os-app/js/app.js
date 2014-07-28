@@ -65,7 +65,7 @@ $(function() {
         doc.count = -1;
       }
       doc.count += 1;
-      //log.clear();
+      log.clear();
       log('v' + doc.count + ': sending push...');
 
 
@@ -89,7 +89,7 @@ $(function() {
             return;
           }
 
-          log.info('v' + doc.count + ': waiting for notification...');
+          log.info('v' + doc.count + ': awaiting notification...');
         });
       });
     });
