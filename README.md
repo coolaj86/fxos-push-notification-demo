@@ -6,7 +6,7 @@ A demo app for registering and sending push notifications.
 This is the "Hello World" of Push apps for Firefox OS.
 
 <center>
-![](http://i.imgur.com/3hdIkMN.png)
+<img src="http://i.imgur.com/3hdIkMN.png" style="border: 1px solid black; width: 240px">
 </center>
 
 Test on your phone and with <http://ffpush.dev.coolaj86.com/>
