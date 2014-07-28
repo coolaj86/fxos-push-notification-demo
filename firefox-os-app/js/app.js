@@ -17,7 +17,7 @@ $(function() {
   };
 
   // using systemXHR
-  $.ajaxSetup( {
+  $.ajaxSetup({
     xhr: function() { return new window.XMLHttpRequest({ mozSystem: true, mozAnon: true }); }
   });
   $('.js-test-site-container').hide();
@@ -61,7 +61,9 @@ $(function() {
         log.error("doc.url disappeared");
       }
 
-      doc.count = doc.count || -1;
+      if ('number' !== typeof doc.count) {
+        doc.count = -1;
+      }
       doc.count += 1;
       //log.clear();
       log('pushing v' + doc.count);
@@ -70,7 +72,7 @@ $(function() {
       $.ajax({
         url: doc.url
       , type: 'PUT'
-      , data: { version: Date.now() } // urlencoded
+      , data: { version: doc.count } // urlencoded
       }).then(function (data) {
         console.log('data');
         console.log(data);
