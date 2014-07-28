@@ -66,16 +66,22 @@ $(function() {
       }
       doc.count += 1;
       //log.clear();
-      log('pushing v' + doc.count);
+      log('v' + doc.count + ': sending push...');
 
 
+      log(
+        "curl '" + doc.url + "' \\"
+      + "\n  -X PUT \\"
+      + "\n  -d 'version=" + doc.count + "' \\"
+      + "\n  -v"
+      );
       $.ajax({
         url: doc.url
       , type: 'PUT'
       , data: { version: doc.count } // urlencoded
       }).then(function (data) {
         console.log('data');
-        console.log(data);
+        console.log(JSON.stringify(data));
 
         db.put(doc, function (err) {
           if (err) {
@@ -83,7 +89,7 @@ $(function() {
             return;
           }
 
-          log.info('pushed v' + doc.count);
+          log.info('v' + doc.count + ': waiting for notification...');
         });
       });
     });
