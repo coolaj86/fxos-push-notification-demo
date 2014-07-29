@@ -5,6 +5,19 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/Simple_Push_API
 // https://developer.mozilla.org/en-US/Apps/Build/App_permissions
 // https://developer.mozilla.org/en-US/Apps/Build/API_support_table
+//
+/*
+  // TODO manually check for updates since push doesn't work very well
+  if (navigator.battery.charging || navigator.battery.level >= 0.97) {
+    console.log('connected to power');
+    // setAlarm(Date.now() + 15 * 1000);
+  } else if () {
+    // setAlarm(Date.now() + 15 * 60 * 60 * 1000);
+  } else {
+    // setAlarm(Date.now() + 1 * 60 * 60 * 1000);
+  }
+  // TODO try websockets
+*/
 
 $(function() {
   'use strict';
@@ -213,8 +226,7 @@ $(function() {
   }
 
 
-  // Receive the push notifications
-  if (!window.navigator.mozSetMessageHandler) {
+  function listenForPush() {
     window.navigator.mozSetMessageHandler('push', function(ev) {
       console.log('[push notification]');
       console.log(ev);
@@ -238,11 +250,7 @@ $(function() {
           );
       });
     });
-  } else {
-    // No message handler
-  }
 
-  if (window.navigator.mozSetMessageHandler) {
     window.navigator.mozSetMessageHandler('push-register', function() {
       log.clear();
       log.warn("[push-register] renewing endpoint...");
@@ -258,7 +266,13 @@ $(function() {
         });
       });
     });
+  }
+
+  // Receive the push notifications
+  if (window.navigator.mozSetMessageHandler) {
+    listenForPush();
   } else {
     // No message handler
+    log("mozSetMessageHandler missing");
   }
 });
