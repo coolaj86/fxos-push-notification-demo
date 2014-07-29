@@ -11,6 +11,8 @@ This is the "Hello World" of Push apps for Firefox OS.
 
 Test on your phone and with <http://ffpush.dev.coolaj86.com/>
 
+Check the status of Mozilla's Push at <http://push.services.mozilla.com/status/>
+
 Install
 =======
 
@@ -31,4 +33,6 @@ pushd firefox-os-push-notification-demo
 Notes
 =====
 
-  * Tested working in Firefox OS 1.3.0 on the ZTE Open C with a T-Mobile SIM.
+  * Tested working in Firefox OS 1.3.0 on the ZTE Open C and Flame with a T-Mobile SIM.
+  * Check the status of Mozilla's Push at <http://push.services.mozilla.com/status/>
+  * Look for das blinkin' arrows (south-west/north-east indicating cell activity) when sending a notification. If they are blinking and you're not getting a notification, you're doing it wrong.
